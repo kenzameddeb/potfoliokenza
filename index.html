@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Kenza Meddeb</title>
+    <!-- Police Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3418e9;
+            --secondary: #7931f4;
+            --bg-color: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-color: rgba(192, 132, 252, 0.25);
+            --nav-bg: rgba(248, 250, 252, 0.85);
+            --shadow: 0 8px 32px 0 rgba(192, 132, 252, 0.15);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #030308;
+            --card-bg: rgba(15, 15, 25, 0.65);
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(192, 132, 252, 0.2);
+            --nav-bg: rgba(3, 3, 8, 0.85);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Canvas de particules interactives */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* En-tête Navigation */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: var(--nav-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 6%;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        select, button.theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            backdrop-filter: blur(8px);
+            outline: none;
+        }
+
+        /* Main layout */
+        main {
+            position: relative;
+            z-index: 1;
+            padding-top: 90px;
+        }
+
+        section {
+            padding: 4.5rem 8%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h2.section-title {
+            font-size: 2.3rem;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            gap: 1.5rem;
+            min-height: 85vh;
+        }
+
+        .hero-img-container {
+            width: 190px;
+            height: 190px;
+            border-radius: 50%;
+            padding: 4px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 10px 25px rgba(192, 132, 252, 0.3);
+            margin-bottom: 1rem;
+        }
+
+        .hero-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.15rem;
+            max-width: 680px;
+            line-height: 1.6;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.85rem 2.2rem;
+            border-radius: 25px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(192, 132, 252, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(192, 132, 252, 0.6);
+        }
+
+        /* Grid System & Cards */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: var(--primary);
+        }
+
+        .card h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .card p, .card ul {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .card ul li {
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-left: 1.2rem;
+        }
+
+        .card ul li::before {
+            content: "✦";
+            position: absolute;
+            left: 0;
+            color: var(--secondary);
+            font-size: 0.8rem;
+        }
+
+        /* Contact Section */
+        .contact-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 650px;
+            box-shadow: var(--shadow);
+        }
+
+        .contact-details {
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            color: var(--text-color);
+            line-height: 1.8;
+        }
+
+        .contact-details strong {
+            color: var(--primary);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        form input, form textarea {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 16px;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        form input:focus, form textarea:focus {
+            border-color: var(--primary);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Adaptations RTL & Réactivité */
+        [dir="rtl"] {
+            direction: rtl;
+            text-align: right;
+        }
+
+        [dir="rtl"] .card ul li {
+            padding-left: 0;
+            padding-right: 1.2rem;
+        }
+
+        [dir="rtl"] .card ul li::before {
+            left: auto;
+            right: 0;
+        }
+
+        @media (max-width: 768px) {
+            nav ul { display: none; }
+            .hero h1 { font-size: 2.2rem; }
+            section { padding: 3.5rem 5%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas Particules -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Navigation -->
+    <header>
+        <div class="logo">Kenza Meddeb</div>
+        <nav>
+            <ul>
+                <li><a href="#hero" data-i18n="nav-home">Accueil</a></li>
+                <li><a href="#skills" data-i18n="nav-skills">Compétences</a></li>
+                <li><a href="#experiences" data-i18n="nav-exp">Expériences</a></li>
+                <li><a href="#associations" data-i18n="nav-assoc">Vie Associative</a></li>
+                <li><a href="#contact" data-i18n="nav-contact">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="nav-actions">
+            <select id="langSelect" aria-label="Langue">
+                <option value="fr">FR</option>
+                <option value="en">EN</option>
+                <option value="ar">AR</option>
+            </select>
+            <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">🌙</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="hero">
+            <div class="hero-img-container">
+                <!-- Image de profil chargée depuis la photo hébergée ou locale -->
+                <img src="kenza.png" alt="Kenza Meddeb" id="profilePic">
+            </div>
+            <h1 data-i18n="hero-title">Kenza Meddeb</h1>
+            <p data-i18n="hero-desc">Étudiante en Business Computing (Spécialité E-Business) – 3ème année à l'ESSECT Tunis. Active, polyvalente et passionnée par la gestion de projets, le web et le marketing digital.</p>
+            <a href="cv.pdf" download class="btn-gradient" data-i18n="hero-btn">Télécharger mon CV </a>
+        </section>
+
+        <!-- Compétences Section -->
+        <section id="skills">
+            <h2 class="section-title" data-i18n="skills-title">Compétences</h2>
+            <div class="grid-cards">
+                <div class="card">
+                    <h3 data-i18n="hard-skills-title">Hard Skills</h3>
+                    <ul>
+                        <li>Python</li>
+                        <li>Développement Web (HTML, CSS, JS)</li>
+                        <li>Montage Vidéo</li>
+                        <li>Adobe Photoshop</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 data-i18n="soft-skills-title">Soft Skills</h3>
+                    <ul>
+                        <li>Leadership</li>
+                        <li>Communication</li>
+                        <li>Gestion du temps</li>
+                        <li>Polyvalence & Sens des responsabilités</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 data-i18n="edu-title">Éducation & Langues</h3>
+                    <ul>
+                        <li><strong>2024-2027 :</strong> 3ème année Business Computing (E-Business) - ESSECT Tunis</li>
+                        <li><strong>2023-2024 :</strong> Baccalauréat Informatique - Lycée Menzah 6</li>
+                        <li><strong>Langues :</strong> Français, Anglais</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Expériences / Projets Section -->
+        <section id="experiences">
+            <h2 class="section-title" data-i18n="exp-title">Expériences & Projets</h2>
+            <div class="grid-cards">
+                <div class="card">
+                    <h3>Management & Direction</h3>
+                    <ul>
+                        <li><strong>Manager</strong> - Dream View (2026)</li>
+                        <li><strong>Manager</strong> - Chère Moi (2026)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Social Media Management</h3>
+                    <ul>
+                        <li><strong>Social Media Manager</strong> - Tsunami Sushi Lab (2025-2026)</li>
+                        <li><strong>Social Media Manager</strong> - Art Gallerie (2025-2026)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Stages Pratiques</h3>
+                    <ul>
+                        <li>Stage en montage vidéo et Photoshop</li>
+                        <li>Stage service informatique <strong>"CAPRA"</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vie Associative Section -->
+        <section id="associations">
+            <h2 class="section-title" data-i18n="assoc-title">Vie Associative</h2>
+            <div class="grid-cards">
+                <div class="card">
+                    <h3>Enactus ESSECT (2025 - 2026)</h3>
+                    <p><strong>Responsable Département Projet :</strong> Pilotage d'équipes et gestion des projets d'entrepreneuriat social.</p>
+                </div>
+                <div class="card">
+                    <h3>Enactus ESSECT (2024 - 2025)</h3>
+                    <p><strong>Membre Actif :</strong> Engagement communautaire et développement d'initiatives à impact.</p>
+                </div>
+                <div class="card">
+                    <h3>Infolab ESSECT (2026)</h3>
+                    <p><strong>Membre Département Event :</strong> Organisation et logistique d'événements technologiques.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact">
+            <h2 class="section-title" data-i18n="contact-title">Contact</h2>
+            <div class="contact-box">
+                <div class="contact-details">
+                    <p><strong>Téléphone :</strong> +216 28 202 401</p>
+                    <p><strong>Email :</strong> kenzameddeb036@gmail.com</p>
+                    <p><strong>Adresse :</strong> 28 avenue de la liberté, Menzah 5</p>
+                </div>
+                <form onsubmit="event.preventDefault(); alert('Message envoyé avec succès !');">
+                    <input type="text" placeholder="Votre Nom" required>
+                    <input type="email" placeholder="Votre Email" required>
+                    <textarea rows="4" placeholder="Votre Message" required></textarea>
+                    <button type="submit" class="btn-gradient" data-i18n="send-btn">Envoyer</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2026 Kenza Meddeb – ESSECT Tunis</p>
+    </footer>
+
+    <!-- JavaScript intégré -->
+    <script>
+        // --- 1. Gestion Multilingue (FR, EN, AR) ---
+        const translations = {
+            fr: {
+                "nav-home": "Accueil", "nav-skills": "Compétences", "nav-exp": "Expériences", "nav-assoc": "Vie Associative", "nav-contact": "Contact",
+                "hero-title": "Kenza Meddeb", "hero-desc": "Étudiante en Business Computing (Spécialité E-Business) – 3ème année à l'ESSECT Tunis. Active, polyvalente et passionnée par la gestion de projets, le web et le marketing digital.",
+                "hero-btn": "Télécharger mon CV (.txt)", "skills-title": "Compétences", "hard-skills-title": "Hard Skills", "soft-skills-title": "Soft Skills", "edu-title": "Éducation & Langues",
+                "exp-title": "Expériences & Projets", "assoc-title": "Vie Associative", "contact-title": "Contact", "send-btn": "Envoyer"
+            },
+            en: {
+                "nav-home": "Home", "nav-skills": "Skills", "nav-exp": "Experiences", "nav-assoc": "Community Life", "nav-contact": "Contact",
+                "hero-title": "Kenza Meddeb", "hero-desc": "Business Computing Student (E-Business Specialty) – 3rd Year at ESSECT Tunis. Active, versatile, and passionate about project management, web development, and digital marketing.",
+                "hero-btn": "Download CV (.txt)", "skills-title": "Skills", "hard-skills-title": "Technical Skills", "soft-skills-title": "Soft Skills", "edu-title": "Education & Languages",
+                "exp-title": "Experiences & Projects", "assoc-title": "Community Life", "contact-title": "Contact", "send-btn": "Send"
+            },
+            ar: {
+                "nav-home": "الرئيسية", "nav-skills": "المهارات", "nav-exp": "الخبرات", "nav-assoc": "الأنشطة الجمعياتية", "nav-contact": "اتصل بي",
+                "hero-title": "كنزة مدب", "hero-desc": "طالبة في الحوسبة التجارية (تخصص التجارة الإلكترونية) - السنة الثالثة بـ ESSECT تونس. نشطة، متعددة المهارات وشغوفة بإدارة المشاريع، الويب والتسويق الرقمي.",
+                "hero-btn": "تحميل السيرة الذاتية (.txt)", "skills-title": "المهارات", "hard-skills-title": "المهارات التقنية", "soft-skills-title": "المهارات الشخصية", "edu-title": "التعليم واللغات",
+                "exp-title": "الخبرات والمشاريع", "assoc-title": "الأنشطة الجمعياتية", "contact-title": "اتصل بي", "send-btn": "إرسال"
+            }
+        };
+
+        const langSelect = document.getElementById('langSelect');
+        langSelect.addEventListener('change', (e) => {
+            const lang = e.target.value;
+            document.documentElement.lang = lang;
+            document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+        });
+
+        // --- 2. Bascule du Thème Clair / Sombre ---
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeToggle.textContent = '🌙';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeToggle.textContent = '☀️';
+            }
+        });
+
+        // --- 3. Particules Interactives (Canvas) ---
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const mouse = { x: null, y: null, radius: 120 };
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.vx = (Math.random() - 0.5) * 0.6;
+                this.vy = (Math.random() - 0.5) * 0.6;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(192, 132, 252, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx = -this.vx;
+                if (this.y < 0 || this.y > canvas.height) this.vy = -this.vy;
+
+                // Réaction au survol de la souris
+                if (mouse.x !== null && mouse.y !== null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < mouse.radius) {
+                        let force = (mouse.radius - distance) / mouse.radius;
+                        let dirX = dx / distance;
+                        let dirY = dy / distance;
+                        this.x -= dirX * force * 3;
+                        this.y -= dirY * force * 3;
+                    }
+                }
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            let count = Math.floor((canvas.width * canvas.height) / 11000);
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+        initParticles();
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+    </script>
+</body>
+</html>
